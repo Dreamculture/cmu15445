@@ -85,6 +85,12 @@ class ArcReplacer {
   std::mutex latch_;
 
   // TODO(student): You can add member variables / functions as you like.
+  //project 1
+  // Locate a resident frame in its MRU/MFU list.
+  std::unordered_map<frame_id_t, std::list<frame_id_t>::iterator> alive_positions_;
+
+  // Locate a ghost page in its MRU/MFU ghost list.
+  std::unordered_map<page_id_t, std::list<page_id_t>::iterator> ghost_positions_;
 };
 
 }  // namespace bustub

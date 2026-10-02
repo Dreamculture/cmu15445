@@ -24,6 +24,7 @@
 #include "storage/disk/disk_scheduler.h"
 #include "storage/page/page.h"
 #include "storage/page/page_guard.h"
+#include <atomic>
 
 namespace bustub {
 
@@ -79,7 +80,7 @@ class FrameHeader {
   std::atomic<size_t> pin_count_;
 
   /** @brief The dirty flag. */
-  bool is_dirty_;
+ std::atomic<bool> is_dirty_{false};
 
   /**
    * @brief A pointer to the data of the page that this frame holds.
@@ -95,6 +96,8 @@ class FrameHeader {
    * currently storing. This might allow you to skip searching for the corresponding (page ID, frame ID) pair somewhere
    * else in the buffer pool manager...
    */
+  // The page currently stored in this frame.
+  page_id_t page_id_{INVALID_PAGE_ID};
 };
 
 /**
@@ -171,5 +174,11 @@ class BufferPoolManager {
    * stored inside of it. Additionally, you may also want to implement a helper function that returns either a shared
    * pointer to a `FrameHeader` that already has a page's data stored inside of it, or an index to said `FrameHeader`.
    */
+  // Caller must hold bpm_latch_. Returns a pinned frame or nullptr.
+  auto FetchFrame(page_id_t page_id, AccessType access_type)
+      -> std::shared_ptr<FrameHeader>;
+
+  // Submit one disk request and wait for completion.
+  void RunDiskRequest(bool is_write, page_id_t page_id, char *data);
 };
 }  // namespace bustub
